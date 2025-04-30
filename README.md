@@ -11,13 +11,11 @@ The system enhances safety and scalability, contributing to sustainable EV batte
 Repository Structure
 
 /data: Sample dataset of battery connector images with annotations (50 images from the 500-image dataset).
-/models: Pre-trained YOLOv11 model weights (best.pt).
 /scripts: Python scripts for training, inference, stereo processing, and Kalman filtering (to be added).
 /results:
 /results/performance: Validation results table, confusion matrix, F1, precision, recall, and precision-recall curves.
 /results/sample_detections: Sample detection images showcasing the model’s performance.
 /results/training_metrics: Training loss and metrics plots (box, cls, dfl, precision, recall, mAP).
-/results/dataset_analysis: Distribution of bounding boxes and class instances.
 
 
 /configs: Training configuration file (args.yaml).
