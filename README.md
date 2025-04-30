@@ -1,82 +1,101 @@
-Automated Connector Detection and 3D Localization for EV Battery Recycling
-This repository contains the code, datasets, models, and results for the paper "Automated connector detection and 3D localization for EV battery recycling using deep learning and Kalman filtering" published at ICMR 2025. The system integrates YOLOv11, stereo vision, and a multivariate Kalman filter to enable real-time connector detection and precise 3D localization for robotic disassembly of electric vehicle (EV) battery packs, tested on a 2016 Toyota Camry hybrid battery.
+Automated Connector Detection for Toyota Camry Hybrid Battery
 Overview
-The proposed system addresses the challenges of manual EV battery disassembly by automating connector detection and 3D localization. Key features include:
+This project implements an automated connector detection system for Toyota Camry Hybrid battery connectors using YOLOv11. The system leverages stereo vision to estimate the position and orientation of connectors, enhanced by a Kalman filter for noise reduction. The project includes training scripts, pre-trained models, sample datasets, and detailed performance analysis.
+Features
 
-YOLOv11-based Detection: Achieves 95.0% mAP@0.5 for connector detection (see validation results in /results/performance).
-Stereo Vision: Provides sub-centimeter depth accuracy (median errors of 0.15-0.25 cm at 15.5-17.7 cm depths).
-Kalman Filtering: Reduces yaw noise by 89.66% for stable robotic alignment.
+Connector Detection: Detects 19 different connector types using YOLOv11.
+Stereo Vision: Uses left and right cameras to estimate connector position (X, Y, Z) and orientation (pitch, yaw, roll).
+Kalman Filter: Reduces noise in distance measurements for more accurate pose estimation.
+Performance Evaluation: Includes detailed metrics (mAP, FPS) and comparisons with other models (Mask R-CNN, SSD, Faster R-CNN).
 
-The system enhances safety and scalability, contributing to sustainable EV battery recycling.
-Repository Structure
+Requirements
+To run this project, you'll need the following:
 
-/data: Sample dataset of battery connector images with annotations (50 images from the 500-image dataset).
-/scripts: Python scripts for training, inference, stereo processing, and Kalman filtering (to be added).
-/results:
-/results/performance: Validation results table, confusion matrix, F1, precision, recall, and precision-recall curves.
-/results/sample_detections: Sample detection images showcasing the model’s performance.
-/results/training_metrics: Training loss and metrics plots (box, cls, dfl, precision, recall, mAP).
+Python 3.10+
+Ultralytics 8.3.53
+PyTorch 2.5.1
+Roboflow (for dataset access)
 
-
-/configs: Training configuration file (args.yaml).
-/docs: Experimental details and supplementary reports (to be added).
-/videos: Demonstration videos of the system in action (to be added).
-
-Installation
-
-Clone the repository:git clone https://github.com/amirreza986/Automated-connector-detection-.git
-cd Automated-connector-detection-
-
-
-Install dependencies:pip install -r requirements.txt
-
-Requirements include torch==2.0.1, opencv-python==4.7.0.72, scikit-learn==1.0.2, and torchvision==0.15.2.
-Download the pre-trained model from /models.
-
-Usage
-1. Connector Detection
-Run YOLOv11 inference on a sample image:
-python scripts/detect_connectors.py --image data/sample_image.jpg --model models/best.pt
-
-Output: Bounding boxes and class scores saved in /results/sample_detections.
-2. 3D Localization
-Compute 3D coordinates using stereo vision:
-python scripts/stereo_localization.py --left data/left_image.jpg --right data/right_image.jpg --calibration scripts/calibration.yaml
-
-Output: 3D coordinates (X, Y, Z) and depth maps in /results/localization.
-3. Orientation Stabilization
-Apply the Kalman filter to smooth orientation estimates:
-python scripts/kalman_filter.py --input results/localization/poses.csv
-
-Output: Filtered yaw angles in /results/filtered_poses.
-Results
-
-Validation Performance: Detailed metrics including precision, recall, and mAP for each class are available in /results/performance/validation_results_table.png.
-Confusion Matrix: Normalized confusion matrix showing classification performance in /results/performance/confusion_matrix.png.
-Performance Curves: F1, precision, recall, and precision-recall curves in /results/performance/curves.
-Sample Detections: Images of detected connectors with bounding boxes and confidence scores in /results/sample_detections.
-Training Metrics: Loss and performance metrics over 200 epochs in /results/training_metrics.
-Dataset Analysis: Distribution of bounding boxes and class instances in /results/dataset_analysis.
+Install the dependencies:
+pip install ultralytics torch roboflow
 
 Dataset
-The /data folder contains a sample of 50 labeled images from the 500-image dataset used in the paper. Annotations are provided in YOLO format (.txt files). To train the model on your own data, update the paths in scripts/train_yolov11.py.
-Training
-To train the YOLOv11 model using the provided configuration:
-python scripts/train_yolov11.py --data data/dataset.yaml --epochs 200 --batch-size 4 --cfg configs/args.yaml
+The dataset is sourced from Roboflow and includes:
 
-Pre-trained weights are available in /models for immediate use. Training metrics are available in /results/training_metrics.
-Demonstration
-Watch a video of the system detecting and localizing connectors in real-time at /videos/demo.mp4 (to be added).
-Citation
-If you use this work, please cite:
-@article{khanloo2025automated,
-  title={Automated connector detection and 3D localization for EV battery recycling using deep learning and Kalman filtering},
-  author={Khanloo, Amirreza and Sorouri, Majid and Lacey, Gerrard},
-  journal={ICMR},
-  year={2025}
-}
+571 training images
+79 validation images
+19 connector classes (e.g., A20, B10, C30, etc.)
 
-Contact
-For questions, contact Amirreza Khanloo (amirreza986@gmail.com) or Majid Sorouri (majid.sorouri@mie.ie).
+A sample subset of the dataset (50 images with labels) is available at /data. The dataset configuration file (dataset.yaml) is also provided in the same directory.
+Class Distribution: Some classes (e.g., C30) have ~100 instances, while others (e.g., 16PinBlackW) have only 2 instances, leading to performance variations.
+Setup and Usage
+1. Clone the Repository
+git clone https://github.com/amirreza986/Automated-connector-detection-.git
+cd Automated-connector-detection-
+
+2. Train the Model
+To train the YOLOv11 model on your dataset:
+python scripts/Detail.png
+
+This script uses the configuration in /data/dataset.yaml and saves the trained model to /models.
+3. Run Inference
+To detect connectors on new images or videos using the pre-trained model:
+python scripts/detect_connectors.py --source path/to/image_or_video --model models/best.pt
+
+Results will be saved in the runs/detect directory.
+4. Test the Model
+To test the model on sample images:
+python scripts/test_model.py
+
+This script runs inference on images in /data/test/images and saves the results.
+Pre-trained Model
+A pre-trained YOLOv11 model is available at /models/best.pt. You can use it directly for inference without retraining.
+Results
+Performance Metrics
+After training for 200 epochs on a Tesla T4 GPU:
+
+mAP@0.5: 0.408
+mAP@0.5:0.95: 0.319
+Inference Speed: 26 ms per image (suitable for real-time applications)
+
+Best performance was observed for class B10 (mAP@0.5 = 0.934), while classes with fewer samples (e.g., 16PinBlackW, 20PinBlackW) had mAP@0.5 = 0 due to data imbalance.
+Sample Results
+Below are sample detections from the left and right cameras, showing the system's ability to detect connectors and provide positional data:
+ Camera DetectionThis image-1 shows the detection of a connector using the left camera, with positional data including offset (-52.01 mm, -11.96 mm), pitch (-1.56°), yaw (1.51°), and distance (37.96 cm).
+ Camera DetectionThis image-2 shows the detection of a connector using the right camera, with positional data including offset (107.53 mm, 15.57 mm), pitch (10.30°), yaw (0.00°), and distance (37.71 cm).
+Performance Analysis
+Error Analysis
+The following boxplot shows the error in distance estimation at different depths, with the ideal error threshold marked in red:
+
+Kalman Filter Performance
+Raw Distance MeasurementsThis plot shows the raw distance measurements before applying the Kalman filter at different depths:
+
+Filtered Distance MeasurementsThis plot shows the filtered distance measurements after applying the Kalman filter, demonstrating reduced noise:
+
+Pose Estimation Analysis
+The following plots compare the pitch, yaw, roll, and coordinates (X, Y, Z) at different depths:
+Pitch Comparison
+Yaw Comparison
+Roll Comparison
+X Coordinates Comparison
+Y Coordinates Comparison
+Z Coordinates Comparison
+Model Comparison
+The following chart compares the accuracy and frames per second (FPS) of different models:
+
+YOLOv11 achieves the highest accuracy (92.5%) while maintaining a high FPS (50), making it the best choice for real-time connector detection.
+Limitations and Future Work
+
+Limitations: The model struggles with classes having few samples (e.g., 16PinBlackW, 20PinBlackW) due to imbalanced data.
+Future Work: Collect more data for underrepresented classes, apply advanced data augmentation, or explore transfer learning with larger datasets.
+
+Additional Documentation
+
+Data Collection Details
+Training Details
+Performance Analysis
+Pose Estimation Analysis
+Model Comparison
+
 License
 This project is licensed under the MIT License - see the LICENSE file for details.
